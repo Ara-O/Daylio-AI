@@ -1,3 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --p-badge-warn-background: pink; /* Set your desired color */
+}
+* {
+  font-family: 'Indie Flower', cursive;
+}
+
+html,
+body {
+  padding: 0px;
+}
+
+.card {
+  background: transparent;
+  margin-top: 50px;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.p-fileupload-header {
+  justify-content: center;
+}
+
+.p-fileupload-advanced {
+  padding: 20px 0px;
+  border: solid 1px rgb(44, 44, 44) !important;
+}
