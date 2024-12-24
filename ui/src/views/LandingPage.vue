@@ -8,8 +8,8 @@
         <div class="card z-20 w-full sm:w-1/2 mt-3">
             <Toast />
             <!-- @vue-ignore -->
-            <FileUpload name="daylio-csv-file" url="/api/upload" @upload="onAdvancedUpload($event)" :multiple="false"
-                accept="image/*">
+            <FileUpload name="daylio_csv_file" url="http://localhost:5000/upload" :multiple="false" accept="image/*"
+                @upload="onCustomUpload">
                 <template #empty>
                     <span>Drag and drop files to here to upload.</span>
                 </template>
@@ -31,11 +31,27 @@ import { FileUpload } from "primevue";
 
 const toast = useToast();
 
-const onAdvancedUpload = () => {
-    console.log("eee")
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+const onCustomUpload = (event: { files: File[] }) => {
+    const file = event.files[0];
+    const formData = new FormData();
+    formData.append('daylio_csv_file', file);
+
+    fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+    }).then((response) => {
+        if (response.ok) {
+            console.log("yay")
+            toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+        } else {
+            console.log("no")
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Upload Failed', life: 3000 });
+        }
+    }).catch((err) => {
+        console.log(err)
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Upload Failed', life: 3000 });
+    });
 };
 
-</script>
 
-<style></style>
+</script>
