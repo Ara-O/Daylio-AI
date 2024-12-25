@@ -8,8 +8,8 @@
         <div class="card z-20 w-full sm:w-1/2 mt-3">
             <Toast />
             <!-- @vue-ignore -->
-            <FileUpload name="daylio_csv_file" url="http://localhost:5000/upload" :multiple="false" accept="image/*"
-                @upload="onCustomUpload">
+            <FileUpload name="daylio_csv_file" :file-limit="1" url="http://localhost:5000/upload" :multiple="false"
+                accept=".csv" @upload="onUpload">
                 <template #empty>
                     <span>Drag and drop files to here to upload.</span>
                 </template>
@@ -18,8 +18,8 @@
         <div>
             Made with love ♡
         </div>
-        <a href="https://github.com/Ara-O/Daylio-AI" target="_blank"> <img :src="GithubLogo" alt="Github logo"
-                class="invert w-5 absolute bottom-5 right-5 cursor-pointer"></a>
+        <a href="https://github.com/Ara-O/Daylio-AI" target="_blank" class="cursor-pointer"> <img :src="GithubLogo"
+                alt="Github logo" class="invert w-5 absolute bottom-5 z-20 right-5 cursor-pointer"></a>
     </main>
 </template>
 
@@ -31,27 +31,8 @@ import { FileUpload } from "primevue";
 
 const toast = useToast();
 
-const onCustomUpload = (event: { files: File[] }) => {
-    const file = event.files[0];
-    const formData = new FormData();
-    formData.append('daylio_csv_file', file);
-
-    fetch('http://localhost:5000/upload', {
-        method: 'POST',
-        body: formData,
-    }).then((response) => {
-        if (response.ok) {
-            console.log("yay")
-            toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
-        } else {
-            console.log("no")
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Upload Failed', life: 3000 });
-        }
-    }).catch((err) => {
-        console.log(err)
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Upload Failed', life: 3000 });
-    });
-};
-
+function onUpload() {
+    console.log('Uploading')
+}
 
 </script>
