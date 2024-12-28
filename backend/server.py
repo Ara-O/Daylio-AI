@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect
+from flask import Flask, jsonify, render_template, request, flash, redirect
 from werkzeug.utils import secure_filename
 import os
 import pandas as pd
@@ -35,11 +35,27 @@ def upload_file():
         entries_file = pd.read_csv(entries_file)
             
         model.process_entries(entries=entries_file)
-        
-        model.ask_question("what do i like to do")
-        print("steven")            
-    return "File uploaded successfully", 200
+        print("Processing done")
+        return "File uploaded successfully", 200 
+    
+    return "There was an error", 400
 
-@app.route("/home")
-def display_dashboard():
-    return render_template("../ui/dist/index.html")
+@app.post('/ask')
+def askQuestion():
+    try:
+        request_data = request.get_json()
+        
+        question = request_data['question']
+        
+        print(f"A question was asked - {question}")
+        
+        if str(question).strip() == "":
+            print("Please enter a valid question")
+            return jsonify({"message": "Please enter a valid question"}), 400
+        
+        response = model.ask_question(question)
+        print(f"response - {response}")
+        return response, 200
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return

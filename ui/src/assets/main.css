@@ -27,6 +27,7 @@ body {
 }
 
 .p-fileupload-advanced {
+  background: #18181e !important;
   padding: 20px 0px;
   border: solid 1px rgb(44, 44, 44) !important;
 }

@@ -6,6 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 from IPython.display import Markdown, display
+import httpx
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
@@ -19,11 +20,11 @@ class ChatMemory:
         self.history.append(f"User: {user_input}")
         self.history.append(f"Assistant: {assistant_output}")
         
-    def get_context(self):
+    def get_history(self):
         # Return the full context (conversation history) as a single string
         return "\n".join(self.history)
     
-    def clear_context(self):
+    def clear_history(self):
         self.history = []
         
 class RagModel:
@@ -37,7 +38,9 @@ class RagModel:
         </Conversation History>
 
         Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. These are some entries at different dates that give insight into your state of mind, memories and moods. Use direct references when necessary
-        Be as specific and thorough as possible and prioritize conversation history when possible to be able to gain more context and quote the conversation history context when applicable
+        Be as specific and thorough as possible and prioritize conversation history when possible to be able to gain more context and quote the conversation history context when applicable. Act conversational but start your messages by complimenting or shedding insight on the question asked.
+        The person whose entries you are reading is the same person you are chatting with, so refer to them as 'you'. Make sure the answer you are giving DIRECTLY relates to the questions asked, using and citing context/quotes when necessary 
+        
         <context>
         {context}
         </context>
@@ -78,9 +81,16 @@ class RagModel:
         """
             Defines the embedding - uses the local nomic-embedding - and chroma db
         """
-        local_embeddings = OllamaEmbeddings(model="nomic-embed-text")
-        vector_store = Chroma.from_texts(texts=all_splits, embedding=local_embeddings)
-        return vector_store
+        try:
+            local_embeddings = OllamaEmbeddings(model="nomic-embed-text")
+            vector_store = Chroma.from_texts(texts=all_splits, embedding=local_embeddings)
+            return vector_store
+        except httpx.ConnectError as e:
+            print(f"A connection error occured: {e}. Is Ollama running? Run Ollama start if so")
+            return
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return
         
         
     def split_text(self, notes_compiled):
@@ -104,29 +114,26 @@ class RagModel:
         print("Extracting text...")
         compiled_notes = self.extract_text(entries)
         
-        print("Splitting texts")
+        print("Splitting texts...")
         splits = self.split_text(compiled_notes)
         
-        print("Defining vector store")
+        print("Defining vector store...")
         self.vector_store = self.define_model_and_store(splits)
     
         self.define_chain()
-        print("Done processing")
+        print("Vector store and chain defined ")
         
     def ask_question(self, question):
-        context = self.chat_memory.get_context()
+        history = self.chat_memory.get_history()
         
         # Get documents related to the current question
         docs = self.vector_store.similarity_search(question, k=25)
         
-        markdown_output = self.chain.invoke({"history": context, "context": docs, "question": question})
+        markdown_output = self.chain.invoke({"history": history, "context": docs, "question": question})
         
         # Add to the chat memory
         self.chat_memory.add_to_memory(question, markdown_output)
         
-        
-        print(Markdown(markdown_output))
-
         # Return the response
         return markdown_output
         
