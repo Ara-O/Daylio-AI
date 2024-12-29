@@ -59,3 +59,7 @@ def askQuestion():
     except Exception as e:
         print(f"An error occurred: {e}")
         return
+    
+@app.get("/health")
+def health():
+    return "App is up and running :D", 200

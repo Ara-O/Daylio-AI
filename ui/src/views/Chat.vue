@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { marked } from "marked"
 import BookIcon from "@/assets/book-icon.png"
 import DiagArr from "@/assets/diag-arrow.png"
 import StraightArr from "@/assets/straight-arr.png"
@@ -117,6 +118,6 @@ async function sendQuestion() {
 }
 
 function formatResponse(response: string) {
-    return "<p>" + response.replace(/\n/g, "<br>") + "</p>";
+    return "<p>" + marked.parse(response.replace(/\n/g, "<br>")) + "</p>";
 }
 </script>
