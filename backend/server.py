@@ -46,15 +46,21 @@ def askQuestion():
         request_data = request.get_json()
         
         question = request_data['question']
+        mode = request_data['mode']
+        
+        full_context_mode = True if mode == "Full-Context" else False
         
         print(f"A question was asked - {question}")
+        print(f"Mode: {mode}")
+        print(f"Full context mode enabled: {full_context_mode}")
+        
         
         if str(question).strip() == "":
             print("Please enter a valid question")
             return jsonify({"message": "Please enter a valid question"}), 400
         
-        response = model.ask_question(question)
-        print(f"response - {response}")
+        response = model.ask_question(question, full_context_mode)
+        
         return response, 200
     except Exception as e:
         print(f"An error occurred: {e}")

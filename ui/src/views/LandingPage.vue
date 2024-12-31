@@ -20,6 +20,7 @@
         </div>
         <a href="https://github.com/Ara-O/Daylio-AI" target="_blank" class="cursor-pointer"> <img :src="GithubLogo"
                 alt="Github logo" class="invert w-5 absolute bottom-5 z-20 right-5 cursor-pointer"></a>
+
     </main>
 </template>
 
@@ -29,6 +30,7 @@ import GithubLogo from "@/assets/github-logo.png"
 import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
 import { FileUpload } from "primevue";
+import { ref } from "vue";
 
 const toast = useToast();
 const router = useRouter()

@@ -24,7 +24,7 @@
             </div>
         </section>
         <section class="w-full px-5 max-w-[700px] grid grid-rows-[12fr_1fr]" v-else>
-            <section ref="conversation_window" class="overflow-auto max-h-[89vh]">
+            <section ref="conversation_window" class="overflow-auto pt-5 max-h-[85vh]">
                 <div v-for="exchange in conversation" class="h-auto">
                     <p class="max-w-[600px] mt-10 text-right"> {{
                         exchange.question }}</p>
@@ -41,7 +41,9 @@
                     @click="sendQuestion">
             </div>
         </section>
-
+        <p class="absolute right-10 top-0 z-30 cursor-pointer hover:underline" @click="switchModes">{{ mode }} Mode
+            Enabled
+        </p>
     </main>
 </template>
 
@@ -63,6 +65,9 @@ type ConversationT = {
     response: string
 }
 
+type ModesT = "RAG" | "Full-Context"
+
+const mode = ref<ModesT>("RAG")
 const question = ref<string>("")
 const first_question_was_asked = ref<boolean>(false)
 const waiting_for_response = ref<boolean>(false)
@@ -82,6 +87,7 @@ async function sendQuestion() {
         if (question.value.trim() === "") {
             // This is just for now [for ease]
             alert("Please enter a message")
+            return
         }
 
         first_question_was_asked.value = true
@@ -100,7 +106,8 @@ async function sendQuestion() {
         question.value = "" //So that I can clear the input field
 
         let res = await axios.post("http://localhost:5000/ask", {
-            question: question_saved
+            question: question_saved,
+            mode: mode.value
         })
 
         conversation.value[conversation_index].response = res.data
@@ -119,5 +126,9 @@ async function sendQuestion() {
 
 function formatResponse(response: string) {
     return "<p>" + marked.parse(response.replace(/\n/g, "<br>")) + "</p>";
+}
+
+function switchModes() {
+    mode.value = mode.value === "RAG" ? "Full-Context" : "RAG"
 }
 </script>
